@@ -11,26 +11,22 @@ WORKDIR /app
 EXPOSE 8000
 
 ARG DEV=false
-#SEE explaination of this run command on line 22 and on
+
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
     rm -rf /tmp && \
+    apk del .tmp-build-deps && \
     adduser \
         --disabled-password \
         --no-create-home \
         django-user
-
-# LINE 13: Creates a new virtual environment of python
-# LINE 14: upgrade pip with the virtual environment we just created
-# LINE 15: Install list of required python modules
-# LINE 16: Then we remove the tmp directory (keeping the image as light as possible)
-# LINE 17 - 21: Linux command to add user inside of linux image. (since using root is always bad idea). We also disable the ability to login to the system with a password
-# We also do not create a home directory for the user
-# Name user django-user
 
 ENV PATH="/py/bin:$PATH"
 
