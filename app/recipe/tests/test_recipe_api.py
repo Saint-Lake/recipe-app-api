@@ -20,13 +20,16 @@ from recipe.serializers import (
 
 RECIPES_URL = reverse('recipe:recipe-list')
 
+
 def create_user(**params):
     """Create and return a new user."""
     return get_user_model().objects.create_user(**params)
 
+
 def detail_url(recipe_id):
     """Create and return a recipe detail URL."""
     return reverse('recipe:recipe-detail', args=[recipe_id])
+
 
 def create_recipe(user, **params):
     """Create and return a sample recipe"""
@@ -41,6 +44,7 @@ def create_recipe(user, **params):
 
     recipe = Recipe.objects.create(user=user, **defaults)
     return recipe
+
 
 class PublicRecipeAPITests(TestCase):
     """Test unauthenticated API requests"""
@@ -68,9 +72,9 @@ class PriavteRecipeAPITests(TestCase):
         """Test we are able to retrieve recipes"""
         create_recipe(user=self.user)
         create_recipe(user=self.user)
-        
+
         res = self.client.get(RECIPES_URL)
-        
+
         recipes = Recipe.objects.all().order_by('-id')
         serializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -84,9 +88,9 @@ class PriavteRecipeAPITests(TestCase):
         )
         create_recipe(user=otheruser)
         create_recipe(user=self.user)
-        
+
         res = self.client.get(RECIPES_URL)
-        
+
         recipes = Recipe.objects.filter(user=self.user)
         serializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
